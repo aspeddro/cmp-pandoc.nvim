@@ -72,6 +72,22 @@ crossref = {
 }
 ```
 
+## Basic Syntax
+
+Single bib file
+```yaml
+bibliography: path/to/bibfile.bib
+```
+
+Multiple bib files:
+```yaml
+bibliography:
+- path/to/bibfile.bib
+- path/to/otherbibfile.bib
+```
+
+More details [pandoc-crossref](https://lierdakil.github.io/pandoc-crossref/)
+
 ## TODO
 
 - [x] references fields to show
