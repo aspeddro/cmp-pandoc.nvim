@@ -29,4 +29,8 @@ function Source:get_trigger_characters()
   return { "@" }
 end
 
+function Source:get_debug_name()
+  return 'pandoc'
+end
+
 return Source

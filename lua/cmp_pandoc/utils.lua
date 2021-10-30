@@ -46,7 +46,7 @@ end
 
 M.format_entry = function(opts)
   local label_prefix = opts.prefix or "@"
-  local kind = opts.kind or cmp.lsp.CompletionItemKind.Reference
+  local kind = cmp.lsp.CompletionItemKind[opts.kind] or cmp.lsp.CompletionItemKind.Reference
   local doc = opts.doc or true
   local doc_kind = opts.doc_kind or cmp.lsp.MarkupKind.Markdown
   return {
@@ -57,10 +57,6 @@ M.format_entry = function(opts)
       value = opts.value,
     } or nil,
   }
-end
-
-M.join = function(tbl)
-  return table.concat(tbl, "\n")
 end
 
 M.nabla = function(str)

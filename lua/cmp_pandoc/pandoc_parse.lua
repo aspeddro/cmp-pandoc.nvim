@@ -84,6 +84,7 @@ local citations = function(path, opts)
     return utils.format_entry({
       label = citation:match("@%w+{(.-),"),
       doc = opts.documentation,
+      kind = 'Field',
       value = Tbl
         :new(opts.fields)
         :map(function(field)
