@@ -2,6 +2,8 @@
 
 Pandoc source for [nvim-cmp](https://github.com/hrsh7th/nvim-cmp)
 
+![image](https://user-images.githubusercontent.com/16160544/139517208-ca327374-9808-479d-9005-3b7ae0541202.png)
+
 ## Requirements
 
 - `Neovim >= 0.5.0`
