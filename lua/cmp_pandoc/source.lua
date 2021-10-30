@@ -26,7 +26,6 @@ function Source:get_keyword_pattern()
 end
 
 function Source:get_trigger_characters()
-  -- return { '[@][^[:blank:]]*' }
   return { "@" }
 end
 

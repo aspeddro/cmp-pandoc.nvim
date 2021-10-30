@@ -43,7 +43,7 @@ Plug 'aspeddro/cmp-pandoc.nvim'
 ```lua
 require'cmp'.setup{
   sources = {
-    { name = 'cmp_pandoc' },
+    { name = 'cmp_pandoc' }
   }
 }
 require'cmp_pandoc'.setup()

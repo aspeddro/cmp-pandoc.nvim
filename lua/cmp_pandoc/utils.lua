@@ -26,6 +26,7 @@ local crossref_patterns = {
 }
 
 M.crossref_patterns = crossref_patterns
+M.bib_patterns = bib_patterns
 
 M.format = function(str, field)
   local pattern_field = bib_patterns[field]

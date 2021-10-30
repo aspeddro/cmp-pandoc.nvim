@@ -92,22 +92,6 @@ local citations = function(path, opts)
         :join(),
     })
   end)
-
-  -- local get_bib_fields = vim.tbl_map(function(citation)
-  --   local citation_fields = vim.tbl_map(function(field)
-  --     return utils.format(citation, field)
-  --   end, opts.fields)
-
-  --   return {
-  --     label = '@' .. citation:match('@%w+{(.-),'),
-  --     kind = cmp.lsp.CompletionItemKind.Reference,
-  --     documentation = opts.documentation and {
-  --       kind = cmp.lsp.MarkupKind.Markdown,
-  --       value = utils.join(citation_fields)
-  --     } or nil
-  --   }
-  -- end, o)
-  -- return get_bib_fields
 end
 
 M.parse_bib = function(bufnr, opts)
@@ -154,19 +138,10 @@ local references = function(line, opts)
 end
 
 M.parse_ref = function(bufnr, opts)
-  -- local all_lines = get_line(bufnr, 0, -1)
-
-  -- local get_references = vim.tbl_filter(function(line)
-  --   return line:match('{#(%a+:[%w_-]+)')
-  -- end, all_lines)
-
-  -- return vim.tbl_map(function(line)
-  --   return references(line, opts)
-  -- end, get_references)
   return Tbl
     :new(get_line(bufnr, 0, -1))
     :filter(function(line)
-      return line:match("{#(%a+:[%w_-]+)")
+      return line:match(utils.crossref_patterns.base)
     end)
     :map(function(line)
       return references(line, opts)
@@ -174,7 +149,7 @@ M.parse_ref = function(bufnr, opts)
 end
 
 M.parse = function(self, callback, bufnr)
-  local opts = require("cmp_pandoc.config")
+  local opts = self.opts or require("cmp_pandoc.config")
 
   local bib_items = M.parse_bib(bufnr, opts.bibliography)
   local reference_items = M.parse_ref(bufnr, opts.crossref)
@@ -188,7 +163,6 @@ M.parse = function(self, callback, bufnr)
   if bib_items then
     all_entrys:extend(bib_items)
   end
-  -- return all_entrys
   return callback(all_entrys)
 end
 
