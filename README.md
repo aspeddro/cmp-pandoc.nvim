@@ -3,6 +3,7 @@
 Pandoc source for [nvim-cmp](https://github.com/hrsh7th/nvim-cmp)
 
 ![image](https://user-images.githubusercontent.com/16160544/139517208-ca327374-9808-479d-9005-3b7ae0541202.png)
+![image](https://user-images.githubusercontent.com/16160544/139517577-72a8025d-ce44-4923-8249-ad1b7a5b41cd.png)
 
 ## Requirements
 
