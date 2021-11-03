@@ -101,7 +101,7 @@ bibliography:
 
 > A YAML metadata block is a valid YAML object, delimited by a line of three hyphens `---` at the top and a line of three hyphens `---` or three dots `...` at the bottom. A YAML metadata block may occur anywhere in the document, but if it is not at the beginning, it must be preceded by a blank line. [Pandoc.org](https://pandoc.org/MANUAL.html#extension-yaml_metadata_block)
 
-Whitespace after `---` or `...` is not supported.
+Whitespace after `---` or `...` is not supported. This plugin uses the buffer path as the working directory.
 
 More details, see [pandoc-crossref](https://lierdakil.github.io/pandoc-crossref/)
 
