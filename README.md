@@ -49,53 +49,76 @@ require'cmp'.setup{
 require'cmp_pandoc'.setup()
 ```
 
-#### Options
+## Configuration (optional)
 
-- `filetypes` (table): list of fileypes to enable completion
-- `bibliography` (table):
-  - `documetation` (boolean): enable documetation
-  - `fields` (table): fiels of bib file to show in documentation
-- `crossref` (table):
-  - `documentation` (boolean): enable documentation
-  - `enable_nabla` (boolean): use [`nabla.nvim`](https://github.com/jbyuki/nabla.nvim) to show LaTeX equation
-
-Default configuration:
+Following are the default config for the `setup()`. If you want to override, just modify the option that you want then it will be merged with the default config.
 
 ```lua
-filetypes = {'pandoc', 'markdown', 'rmd'},
-bibliography = {
-  documentation = true,
-  fields = { 'type', 'title', 'author', 'year' },
-},
-crossref = {
-  documentation = true,
-  enable_nabla = true
+{
+  -- What types of files cmp-pandoc works.
+  -- 'pandoc', 'markdown' and 'rmd' (Rmarkdown)
+  -- @type: table of string
+  filetypes = { "pandoc", "markdown", "rmd" },
+  -- Customize bib documentation
+  bibliography = {
+    -- Enable bibliography documentation
+    -- @type: boolean
+    documentation = true,
+    -- Fields to show in documentation
+    -- @type: table of string
+    fields = { "type", "title", "author", "year" },
+  },
+  -- Crossref
+  crossref = {
+    -- Enable documetation
+    -- @type: boolean
+    documentation = true,
+    -- Use nabla.nvim to render LaTeX equation to ASCII
+    -- @type: boolean
+    enable_nabla = false,
+  }
 }
 ```
 
 ## Basic Syntax
 
-Single bib file
+Add bibliography file on YAML Header
+
 ```yaml
+---
 bibliography: path/to/bibfile.bib
+---
 ```
 
-Multiple bib files:
+Multiple bibliography files:
 ```yaml
+---
 bibliography:
 - path/to/bibfile.bib
 - path/to/otherbibfile.bib
+---
 ```
 
-More details [pandoc-crossref](https://lierdakil.github.io/pandoc-crossref/)
+> A YAML metadata block is a valid YAML object, delimited by a line of three hyphens `---` at the top and a line of three hyphens `---` or three dots `...` at the bottom. A YAML metadata block may occur anywhere in the document, but if it is not at the beginning, it must be preceded by a blank line. [Pandoc.org](https://pandoc.org/MANUAL.html#extension-yaml_metadata_block)
+
+Whitespace after `---` or `...` is not supported.
+
+More details, see [pandoc-crossref](https://lierdakil.github.io/pandoc-crossref/)
+
+## Recomendations
+
+- [pandoc.nvim](https://github.com/aspeddro/pandoc.nvim)
 
 ## TODO
 
 - [x] references fields to show
 - [x] equation preview completion
 - [x] support pandoc-crossref
+- [ ] support whitespace after `---` or `...`
+- [ ] Documentation table and code blocks
+- [ ] Disable in codeblocks
 - [ ] use plenary async (fix [252](https://github.com/nvim-lua/plenary.nvim/issues/252))
 
-## Acknowledgement
+## Alternatives
 
 - [cmp-pandoc-references](https://github.com/jc-doyle/cmp-pandoc-references/)
