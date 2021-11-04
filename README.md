@@ -114,6 +114,8 @@ More details, see [pandoc-crossref](https://lierdakil.github.io/pandoc-crossref/
 - [x] references fields to show
 - [x] equation preview completion
 - [x] support pandoc-crossref
+- [x] Remove references commented
+- [ ] Remove citations commented
 - [ ] support whitespace after `---` or `...`
 - [ ] Documentation table and code blocks
 - [ ] Disable in codeblocks
