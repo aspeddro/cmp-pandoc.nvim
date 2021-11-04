@@ -150,7 +150,7 @@ local references = function(line, opts)
     })
   end
 
-  if line:match(utils.crossref_patterns.section) then
+  if line:match(utils.crossref_patterns.section) and line:match('^#%s+(.*){') then
     return utils.format_entry({
       label = line:match(utils.crossref_patterns.section),
       value = "*" .. vim.trim(line:match("#%s+(.*){")) .. "*",
@@ -173,8 +173,12 @@ end
 M.parse_ref = function(bufnr, opts)
 
   local valid_lines = vim.tbl_filter(function (line)
-    return line:match(utils.crossref_patterns.base)
+    return line:match(utils.crossref_patterns.base) and not line:match('^%<!%-%-(.*)%-%-%>$')
   end, get_line(bufnr, 0, -1))
+
+  if vim.tbl_isempty(valid_lines) then
+    return
+  end
 
   return vim.tbl_map(function (line)
     return references(line, opts)
@@ -191,20 +195,17 @@ M.parse = function(self, callback, bufnr)
   local all_entrys = {}
 
   if reference_items then
-    all_entrys = reference_items
+    vim.list_extend(all_entrys, reference_items)
   end
 
   if bib_items then
-    if #all_entrys == 0 then
-      all_entrys = bib_items
-    else
-      vim.list_extend(all_entrys, bib_items)
-    end
+    vim.list_extend(all_entrys, bib_items)
   end
 
-  if all_entrys then
-    return callback(all_entrys)
+  if not all_entrys then
+    return callback()
   end
+  return callback(all_entrys)
 end
 
 return M
