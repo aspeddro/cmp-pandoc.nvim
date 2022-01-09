@@ -12,7 +12,7 @@ Pandoc source for [nvim-cmp](https://github.com/hrsh7th/nvim-cmp)
 
 ## Features
 
-- Multiple `bib` files
+- Multiple bibliography files
 - Support [pandoc-crossref](https://github.com/lierdakil/pandoc-crossref)
 - Equation preview with [`nabla.nvim`](https://github.com/jbyuki/nabla.nvim)
 
@@ -86,7 +86,7 @@ Add bibliography file on YAML Header
 
 ```yaml
 ---
-bibliography: path/to/bibfile.bib
+bibliography: path/to/references.bib
 ---
 ```
 
@@ -94,32 +94,32 @@ Multiple bibliography files:
 ```yaml
 ---
 bibliography:
-- path/to/bibfile.bib
-- path/to/otherbibfile.bib
+- path/to/references.bib
+- path/to/other/references.bib
 ---
 ```
 
 > A YAML metadata block is a valid YAML object, delimited by a line of three hyphens `---` at the top and a line of three hyphens `---` or three dots `...` at the bottom. A YAML metadata block may occur anywhere in the document, but if it is not at the beginning, it must be preceded by a blank line. [Pandoc.org](https://pandoc.org/MANUAL.html#extension-yaml_metadata_block)
 
-Whitespace after `---` or `...` is not supported. This plugin uses the buffer path as the working directory.
-
 More details, see [pandoc-crossref](https://lierdakil.github.io/pandoc-crossref/)
+
+## Limitations
+
+- YAML metadata inside code blocks with `bibliography` field enable `cmp-pandoc`. The parser does not check if it is inside a fenced code block.
+- Pandoc crossref support a couple options to add code block labels, but only the following style is supported:
+
+~~~ 
+  ```haskell
+  main :: IO ()
+  main = putStrLn "Hello World!"
+  ```
+
+: Listing caption {#lst:code}
+~~~
 
 ## Recomendations
 
 - [pandoc.nvim](https://github.com/aspeddro/pandoc.nvim)
-
-## TODO
-
-- [x] references fields to show
-- [x] equation preview completion
-- [x] support pandoc-crossref
-- [x] Remove references commented
-- [ ] Remove citations commented
-- [ ] support whitespace after `---` or `...`
-- [ ] Documentation table and code blocks
-- [ ] Disable in codeblocks
-- [ ] use plenary async (fix [252](https://github.com/nvim-lua/plenary.nvim/issues/252))
 
 ## Alternatives
 

@@ -21,6 +21,7 @@ local crossref_patterns = {
   base = "{#(%a+:[%w_-]+)",
   equation = "{#(eq:[%w_-]+)",
   section = "{#(sec:[%w_-]+)",
+  figure = "{#(fig:[%w_-]+)",
   table = "{#(tbl:[%w_-]+)",
   lst = "{#(lst:[%w_-]+)",
 }

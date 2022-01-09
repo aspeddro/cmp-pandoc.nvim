@@ -20,5 +20,5 @@ return {
     -- Use nabla.nvim to render LaTeX equation to ASCII
     -- @type: boolean
     enable_nabla = false,
-  }
+  },
 }
