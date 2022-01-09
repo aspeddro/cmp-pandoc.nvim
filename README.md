@@ -108,14 +108,14 @@ More details, see [pandoc-crossref](https://lierdakil.github.io/pandoc-crossref/
 - YAML metadata inside code blocks with `bibliography` field enable `cmp-pandoc`. The parser does not check if it is inside a fenced code block.
 - Pandoc crossref support a couple options to add code block labels, but only the following style is supported:
 
-~~~ 
+  ~~~ 
   ```haskell
   main :: IO ()
   main = putStrLn "Hello World!"
   ```
 
-: Listing caption {#lst:code}
-~~~
+  : Listing caption {#lst:code}
+  ~~~
 
 ## Recomendations
 
