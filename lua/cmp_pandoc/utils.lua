@@ -33,7 +33,7 @@ M.format = function(str, field)
   local pattern_field = bib_patterns[field]
   local match_field = string.match(str, pattern_field)
   if not match_field then
-    return
+    return ""
   end
   local format = match_field:gsub("\n", " "):gsub("%s+", " ")
 
