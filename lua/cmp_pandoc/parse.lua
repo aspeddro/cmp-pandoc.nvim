@@ -152,6 +152,10 @@ end
 M.bibliography = function(bufnr, opts)
   local bib_paths = M.get_bibliography_paths(bufnr)
 
+  if vim.g["pandoc#biblio#bibs"] then
+    bib_paths = vim.g["pandoc#biblio#bibs"]
+  end
+
   if not bib_paths then
     return
   end
