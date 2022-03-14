@@ -126,7 +126,7 @@ local citations = function(path, opts)
 
   local o = {}
 
-  for citation in data:gmatch("@.-\n}\n") do
+  for citation in data:gmatch("@.-\n}") do
     table.insert(o, citation)
   end
 
