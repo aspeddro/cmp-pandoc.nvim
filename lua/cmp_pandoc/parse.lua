@@ -107,10 +107,13 @@ M.get_bibliography_paths = function(bufnr)
   end, bibliography_inputs)
 end
 
-local read_file = function(path)
-  local p = Path.new(vim.api.nvim_buf_get_name(0)):parent():joinpath(path):absolute()
-  if Path:new(p):exists() then
-    local file = io.open(p, "rb")
+local read_file = function(url)
+  if not url:sub(1, 1) == "/" then
+    url = Path.new(vim.api.nvim_buf_get_name(0)):parent():joinpath(url):absolute()
+  end
+
+  if Path:new(url):exists() then
+    local file = io.open(url, "rb")
     local results = file:read("*all")
     file:close()
     return results
