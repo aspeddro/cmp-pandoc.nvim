@@ -46,6 +46,7 @@ M.format = function(str, field)
 end
 
 M.format_entry = function(opts)
+  if not opts.label then return nil end
   local label_prefix = opts.prefix or "@"
   local kind = cmp.lsp.CompletionItemKind[opts.kind] or cmp.lsp.CompletionItemKind.Reference
   local doc = opts.doc or true
