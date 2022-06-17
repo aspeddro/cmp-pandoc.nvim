@@ -181,17 +181,15 @@ local crossreferences = function(line, opts)
   end
 
   if string.match(line, utils.crossref_patterns.div_html) then
-    local caption = string.match(line, [[._-caption=['"]([^\r]+)["'].->]]) or ""
     return utils.format_entry({
-      label = string.match(line,  utils.crossref_patterns.div_html),
-      value = "*" .. vim.trim(caption) .. "*",
+      label = string.match(line, utils.crossref_patterns.div_html),
+      value = "*" .. vim.trim(string.match(line, [[._-caption=['"]([^\r]+)["'].->]]) or "") .. "*",
     })
   end
   print(line)
 
   if string.match(line, utils.crossref_patterns.equation) and string.match(line, "^%$%$(.*)%$%$") then
     local equation = string.match(line, "^%$%$(.*)%$%$")
-
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.equation),
       doc = opts.documentation,
@@ -202,28 +200,28 @@ local crossreferences = function(line, opts)
   if string.match(line, utils.crossref_patterns.section) and string.match(line, "^#%s+(.*){") then
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.section),
-      value = "*" .. vim.trim(string.match(line, "#%s+(.*){")) .. "*",
+      value = "*" .. vim.trim(string.match(line, "#%s+(.*){") or "") .. "*",
     })
   end
 
   if string.match(line, utils.crossref_patterns.table) then
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.base),
-      value = "*" .. vim.trim(string.match(line, "^:%s+(.*)%s+{")) .. "*",
+      value = "*" .. vim.trim(string.match(line, "^:%s+(.*)%s+{") or "") .. "*",
     })
   end
 
   if string.match(line, utils.crossref_patterns.lst) then
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.lst),
-      value = "*" .. vim.trim(string.match(line, "^:%s+(.*)%s+{")) .. "*",
+      value = "*" .. vim.trim(string.match(line, "^:%s+(.*)%s+{") or "") .. "*",
     })
   end
 
   if string.match(line, utils.crossref_patterns.figure) then
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.figure),
-      value = "*" .. vim.trim(string.match(line, "^%!%[.*%]%((.*)%)")) .. "*",
+      value = "*" .. vim.trim(string.match(line, "^%!%[.*%]%((.*)%)") or "") .. "*",
     })
   end
 end
