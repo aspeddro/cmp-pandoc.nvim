@@ -25,7 +25,7 @@ local crossref_patterns = {
   figure = "{#(fig:[%w_-]+)",
   table = "{#(tbl:[%w_-]+)",
   lst = "{#(lst:[%w_-]+)",
-  div_fence = ":::%s*%{#([%w_-]+:[%w_-]+)",
+  div_fence = "::+%s*%{#([%w_-]+:[%w_-]+)",
   div_ticks = "```%s*%{#([%w_-]+:[%w_-]+)",
   div_html = [[<%s*div.-id=["']([%w_-]+:[%w_-]+)]]
 }
