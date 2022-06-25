@@ -17,18 +17,18 @@ Pandoc source for [nvim-cmp](https://github.com/hrsh7th/nvim-cmp)
 
 ## Requirements
 
-- `Neovim >= 0.7.0`
-- [`plenary.nvim`](https://github.com/nvim-lua/plenary.nvim)
+- Neovim >= 0.7.0
+- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
 
 ## Features
 
 - Multiple bibliography files
 - Support [pandoc-crossref](https://github.com/lierdakil/pandoc-crossref)
-- Equation preview with [`nabla.nvim`](https://github.com/jbyuki/nabla.nvim)
+- Equation preview with [nabla.nvim](https://github.com/jbyuki/nabla.nvim)
 
 ## Installation
 
-[*packer.nvim*](https://github.com/wbthomason/packer.nvim)
+[**packer.nvim**](https://github.com/wbthomason/packer.nvim)
 
 ```lua
 use {
@@ -40,7 +40,7 @@ use {
 }
 ```
 
-[*vim-plug*](https://github.com/junegunn/vim-plug)
+[**vim-plug**](https://github.com/junegunn/vim-plug)
 
 ```vim
 Plug 'nvim-lua/plenary.nvim'
@@ -65,26 +65,41 @@ Following are the default config for the `setup()`. If you want to override, jus
 
 ```lua
 {
-  -- What types of files cmp-pandoc works.
-  -- 'pandoc', 'markdown' and 'rmd' (Rmarkdown)
-  -- @type: table of string
+  ---What types of files cmp-pandoc works.
+  ---'pandoc', 'markdown' and 'rmd' (Rmarkdown)
+  ---@type: table of string
   filetype = { "pandoc", "markdown", "rmd" },
-  -- Customize bib documentation
+  ---Customize bib documentation
   bibliography = {
-    -- Enable bibliography documentation
-    -- @type: boolean
+    ---Enable bibliography documentation
+    ---@type: boolean
     documentation = true,
-    -- Fields to show in documentation
-    -- @type: table of string
-    fields = { "type", "title", "author", "year" },
+    ---Fields to show in documentation
+    ---@type: table of string
+    fields = {
+      "type",
+      "title",
+      "author",
+      "year",
+      "container-title",
+      "page",
+      "volume",
+      "edition",
+      "DOI",
+      "URL",
+      "issue",
+      "publiser",
+      "publiser-place",
+      "abstract",
+    }
   },
-  -- Crossref
+  ---Crossref
   crossref = {
-    -- Enable documetation
-    -- @type: boolean
+    ---Enable documetation
+    ---@type: boolean
     documentation = true,
-    -- Use nabla.nvim to render LaTeX equation to ASCII
-    -- @type: boolean
+    ---Use nabla.nvim to render LaTeX equation to ASCII
+    ---@type: boolean
     enable_nabla = false,
   }
 }
