@@ -10,10 +10,11 @@ Pandoc source for [nvim-cmp](https://github.com/hrsh7th/nvim-cmp)
     <td>CrossRef</td>
   </tr>
   <tr>
-    <td><img src="https://user-images.githubusercontent.com/16160544/162342857-277c4c26-4e7f-4174-81d5-a2b5b75e12fd.png"></td>
-    <td><img src="https://user-images.githubusercontent.com/16160544/162342939-6f0d3672-fcf6-4d7b-a5b8-d1ddc5227f20.png"></td>
+    <td><img src="https://user-images.githubusercontent.com/16160544/175781791-15098603-b01f-43eb-830d-2090313817bc.png"></td>
+    <td><img src="https://user-images.githubusercontent.com/16160544/175781949-ff0af00c-550a-458a-82e8-2c5c154cdc59.png"></td>
   </tr>
 </table>
+
 
 ## Requirements
 
