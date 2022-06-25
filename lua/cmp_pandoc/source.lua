@@ -1,36 +1,35 @@
 local config = require("cmp_pandoc.config")
 local parse = require("cmp_pandoc.parse")
 
-local source = {
-  opts = {},
-}
+local Source = {}
 
-source.new = function(overrides)
-  local self = setmetatable({}, { __index = source })
+Source.new = function(overrides)
+  local self = setmetatable({}, { __index = Source })
 
   self.opts = vim.tbl_extend("force", config, overrides or {})
   return self
 end
 
-source.complete = function(self, params, callback)
+Source.complete = function(self, params, callback)
   local bufnr = vim.api.nvim_get_current_buf()
   parse.init(self, callback, bufnr)
 end
 
-source.is_available = function(self)
-  return vim.tbl_contains(self.opts.filetypes, vim.bo.filetype)
+Source.is_available = function(self)
+  return vim.tbl_contains(self.opts.filetype, vim.bo.filetype)
 end
 
-source.get_keyword_pattern = function(self)
-  return "[@][^[:blank:]]*"
+Source.get_keyword_pattern = function(self)
+  -- return "[@][^[:blank:]]*"
+  return self.opts.keyword_pattern
 end
 
-source.get_trigger_characters = function(self)
+Source.get_trigger_characters = function(self)
   return { "@" }
 end
 
-source.get_debug_name = function(self)
+Source.get_debug_name = function(self)
   return "pandoc"
 end
 
-return source
+return Source

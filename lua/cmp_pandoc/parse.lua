@@ -1,245 +1,120 @@
-local Path = require("plenary.path")
+local async = require("plenary.async.async")
 local utils = require("cmp_pandoc.utils")
+local bibliography = require("cmp_pandoc.parsers.bibliography")
+local crossref = require("cmp_pandoc.parsers.crossref")
+local yaml = require("cmp_pandoc.parsers.yaml_front_matter")
+local literals = require("cmp_pandoc.literals")
 
 local M = {}
 
-M.yaml_front_matter = function(bufnr)
-  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
+---Citations
+---@param lines string[]
+---@param opts table
+---@return table|nil
+M.bibliography = async.wrap(function(lines, opts, callback)
+  local yaml_front_matter = yaml.parse(lines)
 
-  local yaml_start = nil
-  local yaml_end = nil
-
-  local function is_valid(str)
-    local match = string.match(str, "^%-%-%-") or string.match(str, "^%.%.%.")
-
-    if match then
-      if string.len(match) == 3 then
-        return true
-      end
-
-      if string.sub(match, string.len(match) + 1, string.len(str)):match("^%s+") then
-        return true
-      end
-
-      return false
-    end
-
-    return false
-  end
-
-  local i = 1
-
-  while i <= #lines do
-    if string.match(lines[i], "^%-%-%-") and is_valid(lines[i]) and not yaml_start then
-      yaml_start = i
-      i = i + 1
-    end
-    if is_valid(lines[i]) then
-      yaml_end = i
-      break
-    end
-    i = i + 1
-  end
-
-  local previous_line_is_empty = (function()
-    if yaml_start == nil then
-      return
-    end
-    if yaml_start > 1 then
-      return string.len(lines[yaml_start - 1]) == 0
-    end
-    return true
-  end)()
-
-  local is_valid_yaml = yaml_start ~= nil and yaml_end ~= nil and (yaml_start ~= yaml_end) and previous_line_is_empty
-
-  return {
-    is_valid = is_valid_yaml,
-    start = yaml_start,
-    ["end"] = yaml_end,
-    raw_content = is_valid_yaml and vim.list_slice(lines, yaml_start + 1, yaml_end - 1) or nil,
-  }
-end
-
-M.get_bibliography_paths = function(bufnr)
-  local front_matter = M.yaml_front_matter(bufnr)
-
-  if not front_matter.is_valid then
-    return
-  end
-
-  local bibliography_line = nil
-
-  for index, value in ipairs(front_matter.raw_content) do
-    if string.match(value, "^bibliography:") then
-      bibliography_line = index
-      break
-    end
-  end
-
-  if not bibliography_line then
-    return
-  end
-
-  local bibliography_field = vim.trim(string.match(front_matter.raw_content[bibliography_line], ":(.*)"))
-
-  if string.len(bibliography_field) > 0 then
-    return { bibliography_field }
-  end
-
-  local bibliography_inputs = {}
-
-  local i = 1
-
-  while i <= #front_matter.raw_content do
-    if string.match(front_matter.raw_content[i], "^%-%s[%w|%d|%D]+") then
-      table.insert(bibliography_inputs, front_matter.raw_content[i])
-    end
-    i = i + 1
-  end
-
-  if #bibliography_inputs == 0 then
-    return
-  end
-
-  return vim.tbl_map(function(bibliography)
-    return vim.trim(string.match(bibliography, "-%s(.*)"))
-  end, bibliography_inputs)
-end
-
-local read_file = function(url)
-  if not url:sub(1, 1) == "/" then
-    url = Path.new(vim.api.nvim_buf_get_name(0)):parent():joinpath(url):absolute()
-  end
-
-  if Path:new(url):exists() then
-    local file = io.open(url, "rb")
-    local results = file:read("*all")
-    file:close()
-    return results
-  end
-end
-
-local citations = function(path, opts)
-  local data = read_file(path)
-
-  if not data then
-    return
-  end
-
-  local o = {}
-
-  for citation in data:gmatch("@.-\n}") do
-    table.insert(o, citation)
-  end
-
-  return vim.tbl_map(function(citation)
-    local documentation = vim.tbl_map(function(field)
-      return utils.format(citation, field)
-    end, opts.fields)
-
-    return utils.format_entry({
-      label = citation:match("@%w+{(.-),"),
-      doc = opts.documentation,
-      kind = "Field",
-      value = table.concat(documentation, "\n"),
-    })
-  end, o)
-end
-
-M.bibliography = function(bufnr, opts)
-  local bib_paths = M.get_bibliography_paths(bufnr)
-
-  if not bib_paths then
-    return
+  if not yaml_front_matter then
+    return callback()
   end
 
   local all_bib_entrys = {}
 
-  for _, path in ipairs(bib_paths) do
-    local citation = citations(path, opts)
-    if citation then
-      vim.list_extend(all_bib_entrys, citation)
+  for _, path in ipairs(yaml_front_matter) do
+    if vim.fn.executable("pandoc") == 1 then
+      bibliography.parse_from_cli(utils.normalize_path(path), function(result)
+        for _, entry in ipairs(result) do
+          local format_fields = vim.tbl_map(function(field)
+            local o = {}
+            if field == "author" and entry[field] then
+              o[1] = field
+              o[2] = table.concat(
+                vim.tbl_map(function(author)
+                  return string.format("%s, %s", author.family, author.given)
+                end, entry[field]),
+                " and "
+              )
+            else
+              if entry[field] then
+                o[1] = field
+                o[2] = vim.trim(entry[field])
+              end
+            end
+            return o
+          end, opts.fields)
+
+          local doc = vim.tbl_map(
+            function(f)
+              return utils.format_from_cli(f[2], f[1])
+            end,
+            vim.tbl_filter(function(f)
+              return f[2] ~= nil
+            end, format_fields)
+          )
+
+          table.insert(all_bib_entrys, {
+            label = "@" .. entry.id,
+            documentation = {
+              value = table.concat(doc, "\n"),
+              kind = "markdown",
+            },
+          })
+        end
+        callback(all_bib_entrys)
+      end)
+    else
+      bibliography.parse_from_file(utils.normalize_path(path), opts, function(result)
+        if result then
+          vim.list_extend(all_bib_entrys, result)
+          -- table.insert(all_bib_entrys, result)
+        end
+        callback(all_bib_entrys)
+      end)
     end
   end
+end, 3)
 
-  return all_bib_entrys
-end
-
-local crossreferences = function(line, opts)
-  if string.match(line, utils.crossref_patterns.equation) and string.match(line, "^%$%$(.*)%$%$") then
-    local equation = string.match(line, "^%$%$(.*)%$%$")
-
-    return utils.format_entry({
-      label = string.match(line, utils.crossref_patterns.equation),
-      doc = opts.documentation,
-      value = opts.enable_nabla and utils.nabla(equation) or equation,
-    })
-  end
-
-  if string.match(line, utils.crossref_patterns.section) and string.match(line, "^#%s+(.*){") then
-    return utils.format_entry({
-      label = string.match(line, utils.crossref_patterns.section),
-      value = "*" .. vim.trim(string.match(line, "#%s+(.*){")) .. "*",
-    })
-  end
-
-  if string.match(line, utils.crossref_patterns.table) then
-    return utils.format_entry({
-      label = string.match(line, utils.crossref_patterns.base),
-      value = "*" .. vim.trim(string.match(line, "^:%s+(.*)%s+{")) .. "*",
-    })
-  end
-
-  if string.match(line, utils.crossref_patterns.lst) then
-    return utils.format_entry({
-      label = string.match(line, utils.crossref_patterns.lst),
-      value = "*" .. vim.trim(string.match(line, "^:%s+(.*)%s+{")) .. "*",
-    })
-  end
-
-  if string.match(line, utils.crossref_patterns.figure) then
-    return utils.format_entry({
-      label = string.match(line, utils.crossref_patterns.figure),
-      value = "*" .. vim.trim(string.match(line, "^%!%[.*%]%((.*)%)")) .. "*",
-    })
-  end
-end
-
-M.references = function(bufnr, opts)
+---Get cross references
+---@param lines string[]
+---@param opts table
+---@return table|nil
+M.crossref = async.wrap(function(lines, opts, callback)
   local valid_lines = vim.tbl_filter(function(line)
-    return line:match(utils.crossref_patterns.base) and not line:match("^%<!%-%-(.*)%-%-%>$")
-  end, vim.api.nvim_buf_get_lines(bufnr, 0, -1, true))
+    return line:match(literals.crossref_patterns.base) and not line:match("^%<!%-%-(.*)%-%-%>$")
+  end, lines)
 
   if vim.tbl_isempty(valid_lines) then
-    return
-  end
-
-  return vim.tbl_map(function(line)
-    return crossreferences(line, opts)
-  end, valid_lines)
-end
-
-M.init = function(self, callback, bufnr)
-  local opts = self and self.opts or require("cmp_pandoc.config")
-
-  local bib_items = M.bibliography(bufnr, opts.bibliography)
-  local reference_items = M.references(bufnr, opts.crossref)
-
-  local all_entrys = {}
-
-  if reference_items then
-    vim.list_extend(all_entrys, reference_items)
-  end
-
-  if bib_items then
-    vim.list_extend(all_entrys, bib_items)
-  end
-
-  if not all_entrys then
     return callback()
   end
-  return callback(all_entrys)
-end
+
+  local result = vim.tbl_map(function(line)
+    return crossref.handle(line, opts)
+  end, valid_lines)
+  callback(result)
+end, 3)
+
+M.init = async.void(function(self, callback, bufnr)
+  local opts = self and self.opts or require("cmp_pandoc.config")
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
+
+  if vim.tbl_isempty(lines) then
+    return callback()
+  end
+
+  local items = {}
+
+  local bibliography_items = M.bibliography(lines, opts.bibliography)
+  local crossref_items = M.crossref(lines, opts.crossref)
+
+  if bibliography_items then
+    vim.list_extend(items, bibliography_items)
+  end
+
+  if crossref_items then
+    vim.list_extend(items, crossref_items)
+  end
+
+  callback({ items = items })
+end)
 
 return M

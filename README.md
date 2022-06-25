@@ -2,12 +2,22 @@
 
 Pandoc source for [nvim-cmp](https://github.com/hrsh7th/nvim-cmp)
 
-![image](https://user-images.githubusercontent.com/16160544/148705263-68701848-485d-4ebe-ac78-b901a40dd5a1.png)
-![image](https://user-images.githubusercontent.com/16160544/148705351-6ff6fe46-0061-4c7f-989b-31f9e7be3c1c.png)
+## Screenshots
+
+<table>
+  <tr>
+    <td>Bibliography</td>
+    <td>CrossRef</td>
+  </tr>
+  <tr>
+    <td><img src="https://user-images.githubusercontent.com/16160544/162342857-277c4c26-4e7f-4174-81d5-a2b5b75e12fd.png"></td>
+    <td><img src="https://user-images.githubusercontent.com/16160544/162342939-6f0d3672-fcf6-4d7b-a5b8-d1ddc5227f20.png"></td>
+  </tr>
+</table>
 
 ## Requirements
 
-- `Neovim >= 0.5.0`
+- `Neovim >= 0.7.0`
 - [`plenary.nvim`](https://github.com/nvim-lua/plenary.nvim)
 
 ## Features
@@ -18,7 +28,7 @@ Pandoc source for [nvim-cmp](https://github.com/hrsh7th/nvim-cmp)
 
 ## Installation
 
-#### [packer.nvim](https://github.com/wbthomason/packer.nvim)
+[*packer.nvim*](https://github.com/wbthomason/packer.nvim)
 
 ```lua
 use {
@@ -30,7 +40,7 @@ use {
 }
 ```
 
-#### [vim-plug](https://github.com/junegunn/vim-plug)
+[*vim-plug*](https://github.com/junegunn/vim-plug)
 
 ```vim
 Plug 'nvim-lua/plenary.nvim'
@@ -43,7 +53,7 @@ Plug 'aspeddro/cmp-pandoc.nvim'
 ```lua
 require'cmp'.setup{
   sources = {
-    { name = 'cmp_pandoc' }
+    { name = 'pandoc' }
   }
 }
 require'cmp_pandoc'.setup()
@@ -58,7 +68,7 @@ Following are the default config for the `setup()`. If you want to override, jus
   -- What types of files cmp-pandoc works.
   -- 'pandoc', 'markdown' and 'rmd' (Rmarkdown)
   -- @type: table of string
-  filetypes = { "pandoc", "markdown", "rmd" },
+  filetype = { "pandoc", "markdown", "rmd" },
   -- Customize bib documentation
   bibliography = {
     -- Enable bibliography documentation

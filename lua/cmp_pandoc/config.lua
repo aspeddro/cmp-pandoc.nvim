@@ -1,24 +1,46 @@
-return {
-  -- What types of files cmp-pandoc works.
-  -- 'pandoc', 'markdown' and 'rmd' (Rmarkdown)
-  -- @type: table of string
-  filetypes = { "pandoc", "markdown", "rmd" },
-  -- Customize bib documentation
+local M = {}
+
+---@class BibliographyOptions
+---@field documentation boolean
+---@field fields string[]
+
+---@class CrossrefOptions
+---@field documentation boolean
+---@field enable_nabla boolean
+
+---@class Options cmp-pandoc default options
+---@field filetypes string[] filetypes to enable pandoc
+---@field keyword_pattern string
+---@field bibliography BibliographyOptions
+---@field crossref CrossrefOptions
+
+---@type Options
+M = {
+  filetype = { "pandoc", "markdown", "rmd" },
+  keyword_pattern = "[@][^[:blank:]]*",
   bibliography = {
-    -- Enable bibliography documentation
-    -- @type: boolean
     documentation = true,
-    -- Fields to show in documentation
-    -- @type: table of string
-    fields = { "type", "title", "author", "year" },
+    fields = {
+      "type",
+      "title",
+      "author",
+      "year",
+      "container-title",
+      "page",
+      "volume",
+      "edition",
+      "DOI",
+      "URL",
+      "issue",
+      "publiser",
+      "publiser-place",
+      "abstract",
+    },
   },
-  -- Crossref
   crossref = {
-    -- Enable documetation
-    -- @type: boolean
     documentation = true,
-    -- Use nabla.nvim to render LaTeX equation to ASCII
-    -- @type: boolean
     enable_nabla = false,
   },
 }
+
+return M
