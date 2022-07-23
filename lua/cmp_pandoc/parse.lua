@@ -186,7 +186,6 @@ local crossreferences = function(line, opts)
       value = "*" .. vim.trim(string.match(line, [[._-caption=['"]([^\r]+)["'].->]]) or "") .. "*",
     })
   end
-  print(line)
 
   if string.match(line, utils.crossref_patterns.equation) and string.match(line, "^%$%$(.*)%$%$") then
     local equation = string.match(line, "^%$%$(.*)%$%$")
