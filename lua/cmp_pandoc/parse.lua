@@ -167,9 +167,28 @@ M.bibliography = function(bufnr, opts)
 end
 
 local crossreferences = function(line, opts)
+  for _, value in pairs({
+    utils.crossref_patterns.div_ticks,
+    utils.crossref_patterns.div_fence,
+  }) do
+    if string.match(line, value) then
+      local caption = string.match(line, [[._-caption=['"]([^\r]+)["'].-}]]) or ""
+      return utils.format_entry({
+        label = string.match(line, value),
+        value = "*" .. vim.trim(caption) .. "*",
+      })
+    end
+  end
+
+  if string.match(line, utils.crossref_patterns.div_html) then
+    return utils.format_entry({
+      label = string.match(line, utils.crossref_patterns.div_html),
+      value = "*" .. vim.trim(string.match(line, [[._-caption=['"]([^\r]+)["'].->]]) or "") .. "*",
+    })
+  end
+
   if string.match(line, utils.crossref_patterns.equation) and string.match(line, "^%$%$(.*)%$%$") then
     local equation = string.match(line, "^%$%$(.*)%$%$")
-
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.equation),
       doc = opts.documentation,
@@ -180,35 +199,36 @@ local crossreferences = function(line, opts)
   if string.match(line, utils.crossref_patterns.section) and string.match(line, "^#%s+(.*){") then
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.section),
-      value = "*" .. vim.trim(string.match(line, "#%s+(.*){")) .. "*",
+      value = "*" .. vim.trim(string.match(line, "#%s+(.*){") or "") .. "*",
     })
   end
 
   if string.match(line, utils.crossref_patterns.table) then
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.base),
-      value = "*" .. vim.trim(string.match(line, "^:%s+(.*)%s+{")) .. "*",
+      value = "*" .. vim.trim(string.match(line, "^:%s+(.*)%s+{") or "") .. "*",
     })
   end
 
   if string.match(line, utils.crossref_patterns.lst) then
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.lst),
-      value = "*" .. vim.trim(string.match(line, "^:%s+(.*)%s+{")) .. "*",
+      value = "*" .. vim.trim(string.match(line, "^:%s+(.*)%s+{") or "") .. "*",
     })
   end
 
   if string.match(line, utils.crossref_patterns.figure) then
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.figure),
-      value = "*" .. vim.trim(string.match(line, "^%!%[.*%]%((.*)%)")) .. "*",
+      value = "*" .. vim.trim(string.match(line, "^%!%[.*%]%((.*)%)") or "") .. "*",
     })
   end
 end
 
 M.references = function(bufnr, opts)
   local valid_lines = vim.tbl_filter(function(line)
-    return line:match(utils.crossref_patterns.base) and not line:match("^%<!%-%-(.*)%-%-%>$")
+    return (line:match(utils.crossref_patterns.base) or line:match(utils.crossref_patterns.base_div))
+      and not line:match("^%<!%-%-(.*)%-%-%>$")
   end, vim.api.nvim_buf_get_lines(bufnr, 0, -1, true))
 
   if vim.tbl_isempty(valid_lines) then
