@@ -198,7 +198,7 @@ local crossreferences = function(line, opts)
     })
   end
 
-  if string.match(line, utils.crossref_patterns.section) and string.match(line, "^#%s+(.*){") then
+  if string.match(line, utils.crossref_patterns.section) and string.match(line, "^#+%s+(.*){") then
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.section),
       value = "*" .. vim.trim(string.match(line, "#%s+(.*){") or "") .. "*",
