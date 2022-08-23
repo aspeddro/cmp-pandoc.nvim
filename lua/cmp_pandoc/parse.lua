@@ -251,7 +251,6 @@ M.references = function(opts, filetypes)
   local all_valid_lines = {}
 
   local valid_lines = {}
-  print(vim.inspect(filetypes))
   local lookup = false
   for _, path in ipairs(references_path) do
     lookup = false
