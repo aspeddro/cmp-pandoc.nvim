@@ -6,8 +6,8 @@ local bib_patterns = {
   id = "@%w+{(.-),",
   type = "@(%w+)",
   title = "title%s*=%s*[{]*(.-)[}],",
-  author = 'author%s*=%s*["{]*(.-)["}],?',
-  year = 'year%s*=%s*["{]?(%d+)["}]?,?',
+  author = '[ae][ud][ti][ht][o][r]%s*=%s*["{]*(.-)["}],?',
+  year = '[yd][ea][at][re]%s*=%s*["{]?(%d+)["}]?,?',
 }
 
 local template = {
@@ -46,7 +46,9 @@ M.format = function(str, field)
 end
 
 M.format_entry = function(opts)
-  if not opts.label then return nil end
+  if not opts.label then
+    return nil
+  end
   local label_prefix = opts.prefix or "@"
   local kind = cmp.lsp.CompletionItemKind[opts.kind] or cmp.lsp.CompletionItemKind.Reference
   local doc = opts.doc or true
