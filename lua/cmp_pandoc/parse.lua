@@ -1,5 +1,7 @@
 local Path = require("plenary.path")
 local utils = require("cmp_pandoc.utils")
+local Scan = require("plenary.scandir")
+local Filetype = require("plenary.filetype")
 
 local M = {}
 
@@ -167,9 +169,28 @@ M.bibliography = function(bufnr, opts)
 end
 
 local crossreferences = function(line, opts)
+  for _, value in pairs({
+    utils.crossref_patterns.div_ticks,
+    utils.crossref_patterns.div_fence,
+  }) do
+    if string.match(line, value) then
+      local caption = string.match(line, [[._-caption=['"]([^\r]+)["'].-}]]) or ""
+      return utils.format_entry({
+        label = string.match(line, value),
+        value = "*" .. vim.trim(caption) .. "*",
+      })
+    end
+  end
+
+  if string.match(line, utils.crossref_patterns.div_html) then
+    return utils.format_entry({
+      label = string.match(line, utils.crossref_patterns.div_html),
+      value = "*" .. vim.trim(string.match(line, [[._-caption=['"]([^\r]+)["'].->]]) or "") .. "*",
+    })
+  end
+
   if string.match(line, utils.crossref_patterns.equation) and string.match(line, "^%$%$(.*)%$%$") then
     local equation = string.match(line, "^%$%$(.*)%$%$")
-
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.equation),
       doc = opts.documentation,
@@ -177,54 +198,91 @@ local crossreferences = function(line, opts)
     })
   end
 
-  if string.match(line, utils.crossref_patterns.section) and string.match(line, "^#%s+(.*){") then
+  if string.match(line, utils.crossref_patterns.section) and string.match(line, "^#+%s+(.*){") then
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.section),
-      value = "*" .. vim.trim(string.match(line, "#%s+(.*){")) .. "*",
+      value = "*" .. vim.trim(string.match(line, "#%s+(.*){") or "") .. "*",
     })
   end
 
   if string.match(line, utils.crossref_patterns.table) then
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.base),
-      value = "*" .. vim.trim(string.match(line, "^:%s+(.*)%s+{")) .. "*",
+      value = "*" .. vim.trim(string.match(line, "^:%s+(.*)%s+{") or "") .. "*",
     })
   end
 
   if string.match(line, utils.crossref_patterns.lst) then
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.lst),
-      value = "*" .. vim.trim(string.match(line, "^:%s+(.*)%s+{")) .. "*",
+      value = "*" .. vim.trim(string.match(line, "^:%s+(.*)%s+{") or "") .. "*",
     })
   end
 
   if string.match(line, utils.crossref_patterns.figure) then
     return utils.format_entry({
       label = string.match(line, utils.crossref_patterns.figure),
-      value = "*" .. vim.trim(string.match(line, "^%!%[.*%]%((.*)%)")) .. "*",
+      value = "*" .. vim.trim(string.match(line, "^%!%[.*%]%((.*)%)") or "") .. "*",
     })
   end
 end
 
-M.references = function(bufnr, opts)
-  local valid_lines = vim.tbl_filter(function(line)
-    return line:match(utils.crossref_patterns.base) and not line:match("^%<!%-%-(.*)%-%-%>$")
-  end, vim.api.nvim_buf_get_lines(bufnr, 0, -1, true))
+local valid_references = function(path)
+  local data = read_file(path)
 
-  if vim.tbl_isempty(valid_lines) then
+  if not data then
+    return
+  end
+  data = data:gsub("\\n", "\n"):gsub("\\r", "\r")
+  local datatable = {}
+  for s in data:gmatch("[^\r\n]+") do
+    datatable[#datatable + 1] = s
+  end
+
+  return vim.tbl_filter(function(line)
+    return (line:match(utils.crossref_patterns.base) or line:match(utils.crossref_patterns.base_div))
+      and not line:match("^%<!%-%-(.*)%-%-%>$")
+  end, datatable)
+end
+
+M.references = function(opts, filetypes)
+  local references_path =
+    Scan.scan_dir(Path:new(vim.api.nvim_buf_get_name(0)):parents()[2], { hidden = true, depth = 2 })
+  local all_valid_lines = {}
+
+  local valid_lines = {}
+  local lookup = false
+  for _, path in ipairs(references_path) do
+    lookup = false
+    for _, filetype in ipairs(filetypes) do
+      if filetype == Filetype.detect(path) then
+        lookup = true
+        break
+      end
+    end
+
+    if lookup then
+      valid_lines = valid_references(path)
+      if valid_lines then
+        vim.list_extend(all_valid_lines, valid_lines)
+      end
+    end
+  end
+
+  if vim.tbl_isempty(all_valid_lines) then
     return
   end
 
   return vim.tbl_map(function(line)
     return crossreferences(line, opts)
-  end, valid_lines)
+  end, all_valid_lines)
 end
 
 M.init = function(self, callback, bufnr)
   local opts = self and self.opts or require("cmp_pandoc.config")
 
   local bib_items = M.bibliography(bufnr, opts.bibliography)
-  local reference_items = M.references(bufnr, opts.crossref)
+  local reference_items = M.references(opts.crossref, opts.filetypes)
 
   local all_entrys = {}
 

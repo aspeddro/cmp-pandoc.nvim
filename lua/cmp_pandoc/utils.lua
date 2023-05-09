@@ -19,11 +19,15 @@ local template = {
 
 local crossref_patterns = {
   base = "{#(%a+:[%w_-]+)",
+  base_div = "<%s*div.->",
   equation = "{#(eq:[%w_-]+)",
   section = "{#(sec:[%w_-]+)",
   figure = "{#(fig:[%w_-]+)",
   table = "{#(tbl:[%w_-]+)",
   lst = "{#(lst:[%w_-]+)",
+  div_fence = "::+%s*%{#([%w_-]+:[%w_-]+)",
+  div_ticks = "```%s*%{#([%w_-]+:[%w_-]+)",
+  div_html = [[<%s*div.-id=["']([%w_-]+:[%w_-]+)]]
 }
 
 M.crossref_patterns = crossref_patterns
